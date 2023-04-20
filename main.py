@@ -1,5 +1,6 @@
 # from typing import Union
 from fastapi import FastAPI, UploadFile, File
+from typing import List, Optional
 import shutil
 import os
 from course_recommender import main
@@ -12,14 +13,15 @@ def home():
     return {"Hello": "World"}
 
 @app.post("/fetch-course-recommendations")
-def fetch_couse_recommendation(file: UploadFile = File(...)):
+def fetch_couse_recommendation(file: UploadFile = File(...), interest_departments: Optional[List[str]] = None):
     file_location = f"course_recommender/{file.filename}"
     with open(file_location, "wb+") as file_object:
         shutil.copyfileobj(file.file, file_object)
 
-    response = main.main()
+    interest_departments = interest_departments[0].split(',')
+    response = main.main(file.filename, interest_departments)
     os.remove(file_location)
-    
+
     return {"success": True, "data": response}
     
 
