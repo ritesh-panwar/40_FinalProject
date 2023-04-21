@@ -1,0 +1,25 @@
+body {
+    background-image: url("../images/background.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-attachment: fixed;
+    padding: 1rem 8rem;
+}
+
+#header-img {
+    text-align: center;
+}
+
+header {
+    text-align: center;
+}
+
+header h3 {
+    margin: 1rem 0rem;
+    border-bottom: 1px solid grey;
+    padding: 1rem;
+}
+
+form {
+    margin-bottom: 1rem;
+}
