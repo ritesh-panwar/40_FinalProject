@@ -27,10 +27,26 @@ async def home(request: Request):
 
 @app.post("/fetch-course-recommendations")
 async def fetch_couse_recommendation(request: Request, file: UploadFile = File(...), checkboxCSE: str = Form(default=None), checkboxECE: str = Form(default=None), checkboxMTH: str = Form(default=None), checkboxBIO: str = Form(default=None), checkboxDES: str = Form(default=None), checkboxSSH: str = Form(default=None), checkboxOTHERS: str = Form(default=None)):
+    
+    #Check File Extension
+    if not file.filename.lower().endswith('.pdf'):
+        print("Invalid File Extension!")
+        courseRequest['status'] = "fail"
+        courseRequest['data'] = {}
+        redirect_url = request.url_for('home')
+        return RedirectResponse(redirect_url, status_code=status.HTTP_303_SEE_OTHER) 
+
     #Saving Uploaded File
-    file_location = f"course_recommender/{file.filename}"
-    with open(file_location, "wb+") as file_object:
-        shutil.copyfileobj(file.file, file_object)
+    try:
+        file_location = f"course_recommender/{file.filename}"
+        with open(file_location, "wb+") as file_object:
+            shutil.copyfileobj(file.file, file_object)
+    except:
+        print("Error while Saving the file!")
+        courseRequest['status'] = "fail"
+        courseRequest['data'] = {}
+        redirect_url = request.url_for('home')
+        return RedirectResponse(redirect_url, status_code=status.HTTP_303_SEE_OTHER)
 
     #Interest Departments List
     interest_departments = []
@@ -61,6 +77,7 @@ async def fetch_couse_recommendation(request: Request, file: UploadFile = File(.
         courseRequest['data'] = response
     except:
         courseRequest['status'] = "fail"
+        courseRequest['data'] = {}
 
     #Removing current file
     os.remove(file_location)
