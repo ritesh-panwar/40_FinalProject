@@ -337,22 +337,21 @@ def append_missing_data(df):
 #Main Function
 def main(filename, interest_deps):
 
-  # df = extract_transcript.pdf_to_df(filename)
+  df = extract_transcript.pdf_to_df(filename)
 
-  # #Optional if certain data is missed in transcript fetching
-  # df = append_missing_data(df)
+  #Optional if certain data is missed in transcript fetching
+  df = append_missing_data(df)
 
-  # print("Fetched Transcript Data:")
-  # print(df)
-  # print()
+  print("Fetched Transcript Data:")
+  print(df)
+  print()
 
   # df.to_csv(filename)
 
-  df = pd.read_csv("tushar_data.csv")
-  print("Fetched Transcript Data:")
-  print(df)
-  
-  print()
+  # df = pd.read_csv("tushar_data.csv")
+  # print("Fetched Transcript Data:")
+  # print(df)
+  # print()
 
   response = course_recommender(df, interest_deps)
   return response

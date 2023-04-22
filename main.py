@@ -68,16 +68,5 @@ async def fetch_couse_recommendation(request: Request, file: UploadFile = File(.
     redirect_url = request.url_for('home')
     return RedirectResponse(redirect_url, status_code=status.HTTP_303_SEE_OTHER)  
 
-@app.post("/user-input/")
-def user_input(file: UploadFile = File(...), checkboxCSE: str = Form(default=None), checkboxECE: str = Form(default=None), checkboxMTH: str = Form(default=None), checkboxBIO: str = Form(default=None), checkboxDES: str = Form(default=None), checkboxSSH: str = Form(default=None), checkboxOTHERS: str = Form(default=None)):
-    print(file.filename)
-    print("checkBoxCSE", checkboxCSE)
-    print("checkBoxECE", checkboxECE)
-    print("checkBoxMTH", checkboxMTH)
-    print("checkBoxBIO", checkboxBIO)
-    print("checkBoxDES", checkboxDES)
-    print("checkBoxSSH", checkboxSSH)
-    print("checkBoxOTHERS", checkboxOTHERS)
-    return {"success": True}
-    
+
 
