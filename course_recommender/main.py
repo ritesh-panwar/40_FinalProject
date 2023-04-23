@@ -300,8 +300,8 @@ def fetch_database_courses(courses, req_sem, high_score_courses, dep_suggestions
 
       #Fetching Similarity Score
       try:
-        # score = bert_model.matching_score(row['Course Code'], high_score_courses)
-        score = round(random.uniform(50, 100), 2)
+        score = bert_model.matching_score(row['Course Code'], high_score_courses)
+        # score = round(random.uniform(50, 100), 2)
       except:
         score = 0
 
