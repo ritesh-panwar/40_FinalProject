@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import math
 # import extract_transcript
-from course_recommender import extract_transcript
+from course_recommender import extract_transcript, bert_model
 
 import warnings
 warnings.filterwarnings("ignore")
@@ -105,7 +105,7 @@ def handle_last_two_year_courses(df, prev_courses, backlogs):
     }
 
 #Core Function to Track Graduation Requirements and Retrieve Relevant Courses
-def course_recommender(df, interest_deps):
+def course_recommender(df, interest_deps, high_score_courses):
 
   course_recom_response = {}
   course_recom_response['transcript_data'] = df.to_dict()
@@ -249,16 +249,16 @@ def course_recommender(df, interest_deps):
   courses = courses_F2
   courses.extend(info_L2['courses'])
   print("\n Requirement Course Suggestions\n---------------------\n")
-  course_recom_response['req_course_suggestions'] = fetch_database_courses(courses, req_sem, dep_suggestions)
+  course_recom_response['req_course_suggestions'] = fetch_database_courses(courses, req_sem, high_score_courses, dep_suggestions)
 
   print("Additional Course Suggestions for Graduation Requirements Based on Interests:\n-------------------------------------------\n")
-  course_recom_response['add_course_suggestions'] = fetch_database_courses(courses, req_sem, interest_deps)
+  course_recom_response['add_course_suggestions'] = fetch_database_courses(courses, req_sem, high_score_courses, interest_deps)
 
   return course_recom_response
 
 
 #Function to fetch courses from techtree database
-def fetch_database_courses(courses, req_sem, dep_suggestions):
+def fetch_database_courses(courses, req_sem, high_score_courses, dep_suggestions):
   db = pd.read_csv('course_recommender/techtree_database.csv')
   db = db.loc[(db['Semester'] == req_sem) | (db['Semester'] == 'Monsoon/Winter')]
 
@@ -268,7 +268,7 @@ def fetch_database_courses(courses, req_sem, dep_suggestions):
   for dep in dep_suggestions:
     print(dep, "Suggestions:\n------------------")
     dep_df = db.loc[db['Department'] == dep]
-    courses_df = pd.DataFrame(columns = ['Code', 'Name', 'Acronym', 'Semester'])
+    courses_df = pd.DataFrame(columns = ['Code', 'Name', 'Acronym', 'Semester', 'Matching'])
 
     for index, row in dep_df.iterrows():
       course_codes = preprocess_db_entry(row['Course Code'])
@@ -297,9 +297,18 @@ def fetch_database_courses(courses, req_sem, dep_suggestions):
       if len(it) > 0:
         continue
 
+      #Fetching Similarity Score
+      try:
+        score = bert_model.matching_score(row['Course Code'], high_score_courses)
+      except:
+        score = 0
+
       # print("-",row['Course Code'], row['Course Name'], row['Course Acronym'], row['Semester'])
-      courses_df = pd.concat([courses_df, pd.DataFrame({"Code": row['Course Code'], "Name": row['Course Name'], "Acronym": row['Course Acronym'], "Semester": row['Semester']}, index=[0])],
+      courses_df = pd.concat([courses_df, pd.DataFrame({"Code": row['Course Code'], "Name": row['Course Name'], "Acronym": row['Course Acronym'], "Semester": row['Semester'], "Matching": score}, index=[0])],
         ignore_index = True)
+
+    #Sorting the database based on matching score
+    courses_df = courses_df.sort_values(by=['Matching'], ascending=False).reset_index(drop=True)
 
     print(courses_df)
     print()
@@ -333,12 +342,20 @@ def append_missing_data(df):
   df = pd.concat([df, missing_df], ignore_index = True)
   return df
 
+#Function to Fetch Course Codes of High-Scoring Courses in Transcript
+def fetch_high_scoring_courses(df):
+  high_grades = ["A+", "A", "A-"]
+  courses = []
+  for index, row in df.iterrows():
+    if row['Grade'] in high_grades:
+      courses.append(row['Code'])
+
+  return courses
 
 #Main Function
 def main(filename, interest_deps):
 
   df = extract_transcript.pdf_to_df("course_recommender/"+filename)
-
   #Optional if certain data is missed in transcript fetching
   df = append_missing_data(df)
 
@@ -353,7 +370,9 @@ def main(filename, interest_deps):
   # print(df)
   # print()
 
-  response = course_recommender(df, interest_deps)
+  high_score_courses = fetch_high_scoring_courses(df)
+
+  response = course_recommender(df, interest_deps, high_score_courses)
   return response
 
 if __name__ == '__main__':

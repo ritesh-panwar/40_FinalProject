@@ -72,7 +72,7 @@ async def fetch_couse_recommendation(request: Request, file: UploadFile = File(.
     #Passing the input in the course recommender function
     try:
         response = main.main(file.filename, interest_departments)
-        print(response)
+        # print(response)
         courseRequest['status'] = 'success'
         courseRequest['data'] = response
     except:

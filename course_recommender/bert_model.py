@@ -43,7 +43,8 @@ def sim_score(rank_list, input, courses, df, model):
     return np.round(score, 2)
 
 def matching_score(input_course, courses_list):
-    df = pd.read_csv("course_descriptions.csv")
+    # print(input_course, courses_list)
+    df = pd.read_csv("course_recommender/course_descriptions.csv")
     # print(df.shape)
     df = df.dropna(subset=['Name', 'Course', 'Description'])
     courses = list(df["Course"].unique())
@@ -54,5 +55,7 @@ def matching_score(input_course, courses_list):
     # input_course = 'CSE350'
     # print(df)
     score = sim_score(courses_list, input_course, courses, df, model)
-    print(score)
+    # print(score)
     return score
+
+# matching_score("SSH700", ['CSE101', 'ECE111', 'CSE102', 'CSE112', 'SOC101', 'SSH101', 'CSE121', 'CSE201', 'CSE231', 'MTH203', 'CSE202', 'CSE222', 'MTH204', 'MTH377', 'CSE200A', 'BTP499', 'CSE343', 'CSE556', 'ESC207A', 'BIP399', 'BTP499', 'CSE344', 'CSE641', 'ECO201', 'SSH235'])
