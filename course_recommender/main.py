@@ -329,18 +329,18 @@ def preprocess_db_entry(entry):
   return entry
 
 #Function to add missing data in fetched transcript data
-def append_missing_data(df):
-  missing_df = pd.DataFrame({
-                    "Semester": [6, 6],
-                    "Code": ["ECO201", "SSH235"],
-                    "Title of the Course": ["Macroeconomics", "Ethics in AI"],
-                    "Credit": [4, 4],
-                    "Grade": ["A-", "A-"],
-                    "Level": [2, 2]       
-                })
+# def append_missing_data(df):
+#   missing_df = pd.DataFrame({
+#                     "Semester": [6, 6],
+#                     "Code": ["ECO201", "SSH235"],
+#                     "Title of the Course": ["Macroeconomics", "Ethics in AI"],
+#                     "Credit": [4, 4],
+#                     "Grade": ["A-", "A-"],
+#                     "Level": [2, 2]       
+#                 })
   
-  df = pd.concat([df, missing_df], ignore_index = True)
-  return df
+#   df = pd.concat([df, missing_df], ignore_index = True)
+#   return df
 
 #Function to Fetch Course Codes of High-Scoring Courses in Transcript
 def fetch_high_scoring_courses(df):
@@ -355,9 +355,9 @@ def fetch_high_scoring_courses(df):
 #Main Function
 def main(filename, interest_deps):
 
-  df = extract_transcript.pdf_to_df("course_recommender/"+filename)
+  df, student_info = extract_transcript.pdf_to_df("course_recommender/"+filename)
   #Optional if certain data is missed in transcript fetching
-  df = append_missing_data(df)
+  # df = append_missing_data(df)
 
   print("Fetched Transcript Data:")
   print(df)
@@ -373,6 +373,8 @@ def main(filename, interest_deps):
   high_score_courses = fetch_high_scoring_courses(df)
 
   response = course_recommender(df, interest_deps, high_score_courses)
+  response['student_info'] = student_info
+
   return response
 
 if __name__ == '__main__':
